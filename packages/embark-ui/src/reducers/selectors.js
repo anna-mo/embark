@@ -245,4 +245,3 @@ export function getEditorTabs(state) {
 export function getPreviewUrl(state) {
   return state.previewUrl;
 }
-

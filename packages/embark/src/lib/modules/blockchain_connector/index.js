@@ -749,6 +749,7 @@ class BlockchainConnector {
     this.contractsSubscriptions = [];
     this.events.request("contracts:list", (_err, contractsList) => {
       contractsList.forEach(contractObject => {
+        // address was missing on fresh/reset `embark run`
         if (!contractObject.address){
           return;
         }

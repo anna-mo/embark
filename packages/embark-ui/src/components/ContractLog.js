@@ -2,16 +2,13 @@ import PropTypes from "prop-types";
 import React from 'react';
 import {Row, Col, Table, FormGroup, Label, Input, Form} from 'reactstrap';
 
-import DebugButton from './DebugButton'
+import DebugButton from './DebugButton';
 
-const TX_STATES = {Success: '0x1', Fail: '0x0', Any: ''};
+const TX_STATES = {Any: '', Success: '0x1', Fail: '0x0'};
 const EVENT = 'event';
 const FUNCTION = 'function';
-const CONSTRUCTOR = 'constructor';
-const PURE = 'pure';
-const VIEW = 'view';
 
-class ContractTransactions extends React.Component {
+class ContractLog extends React.Component {
   constructor(props) {
     super(props);
     this.state = {method: '', event: '', status: TX_STATES['Any']};
@@ -23,7 +20,7 @@ class ContractTransactions extends React.Component {
     }
 
     return this.props.contract.abiDefinition.filter(method => (
-      method.name !== CONSTRUCTOR && method.mutability !== VIEW && method.mutability !== PURE && method.constant !== true && method.type === FUNCTION
+      method.type === FUNCTION
     ));
   }
 
@@ -31,7 +28,9 @@ class ContractTransactions extends React.Component {
     if (!this.props.contract.abiDefinition) {
       return [];
     }
-    return this.props.contract.abiDefinition.filter(method => method.type === EVENT);
+    return this.props.contract.abiDefinition.filter(method => (
+      method.type === EVENT
+    ));
   }
 
   updateState(key, value) {
@@ -50,8 +49,17 @@ class ContractTransactions extends React.Component {
         return false;
       }
 
-      if (this.state.method || this.state.event) {
-        return this.state.method === contractLog.functionName || contractLog.events.includes(this.state.event);
+      if (this.state.method && this.state.event) {
+        return this.state.method === contractLog.functionName &&
+          contractLog.events.includes(this.state.event);
+      }
+
+      if (this.state.method) {
+        return this.state.method === contractLog.functionName;
+      }
+
+      if (this.state.event) {
+        return contractLog.events.includes(this.state.event);
       }
 
       return true;
@@ -63,16 +71,17 @@ class ContractTransactions extends React.Component {
       <React.Fragment>
         <Form>
           <Row>
-            <Col md={6}>
+            <Col md={4}>
               <FormGroup>
                 <Label htmlFor="functions">Functions</Label>
                 <Input type="select" name="functions" id="functions" onChange={(event) => this.updateState('method', event.target.value)} value={this.state.method}>
                   <option value=""></option>
                   {this.getMethods().map((method, index) => <option value={method.name} key={index}>{method.name}</option>)}
+                  <option value="constructor">constructor</option>
                 </Input>
               </FormGroup>
             </Col>
-            <Col md={6}>
+            <Col md={4}>
               <FormGroup>
                 <Label htmlFor="events">Events</Label>
                 <Input type="select" name="events" id="events" onChange={(event) => this.updateState('event', event.target.value)} value={this.state.event}>
@@ -81,25 +90,16 @@ class ContractTransactions extends React.Component {
                 </Input>
               </FormGroup>
             </Col>
-            <Col>
-              <FormGroup row>
-                <Col md="3">
-                  <Label>Tx Status</Label>
-                </Col>
-                <Col md="9">
-                  {Object.keys(TX_STATES).map(key => (
-                    <FormGroup key={key} check inline>
-                      <Input className="form-check-input"
-                            type="radio"
-                            id={key}
-                            name={key}
-                            value={TX_STATES[key]}
-                            onChange={(event) => this.updateState('status', event.target.value)}
-                            checked={TX_STATES[key] === this.state.status} />
-                      <Label check className="form-check-label" htmlFor={key}>{key}</Label>
-                    </FormGroup>
+            <Col md={4}>
+              <FormGroup>
+                <Label htmlFor="events">Status</Label>
+                <Input type="select" name="status" id="status" onChange={(event) => this.updateState('status', event.target.value)} value={this.state.status}>
+                  {Object.keys(TX_STATES).map((key, index) => (
+                    <option value={TX_STATES[key]} key={index}>
+                      {key === 'Any' ? '' : key}
+                    </option>
                   ))}
-                </Col>
+                </Input>
               </FormGroup>
             </Col>
           </Row>
@@ -110,7 +110,7 @@ class ContractTransactions extends React.Component {
               <thead>
                 <tr>
                   <th></th>
-                  <th>Call</th>
+                  <th>Invocation</th>
                   <th>Events</th>
                   <th>Gas Used</th>
                   <th>Block number</th>
@@ -143,11 +143,10 @@ class ContractTransactions extends React.Component {
   }
 }
 
-ContractTransactions.propTypes = {
+ContractLog.propTypes = {
   contractLogs: PropTypes.array,
   contractEvents: PropTypes.array,
   contract: PropTypes.object.isRequired
 };
 
-export default ContractTransactions;
-
+export default ContractLog;

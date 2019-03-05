@@ -45,7 +45,7 @@ class ContractFunction extends Component {
       return 'Deploy';
     }
 
-    return ContractFunction.isPureCall(method) ? 'Call' : 'Send';
+    return ContractFunction.isPureCall(method) ? 'call' : 'send';
   }
 
   inputsAsArray() {
@@ -69,8 +69,16 @@ class ContractFunction extends Component {
   }
 
   handleCall(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
     this.props.postContractFunction(this.props.contractProfile.name, this.props.method.name, this.inputsAsArray(), this.state.inputs.gasPrice * 1000000000);
+  }
+
+  handleKeyPress(e) {
+    if (e.key === 'Enter' && !this.callDisabled()) this.handleCall();
+  }
+
+  handleSubmit(e) {
+    e.preventDefault();
   }
 
   callDisabled() {
@@ -90,9 +98,23 @@ class ContractFunction extends Component {
   }
 
   toggleFunction() {
-    this.setState({
-      functionCollapse: !this.state.functionCollapse
-    });
+    if (!ContractFunction.isEvent(this.props.method)) {
+      this.setState({
+        functionCollapse: !this.state.functionCollapse
+      });
+    }
+  }
+
+  makeBadge(color, text) {
+    const names = {
+      'badge-dark': this.state.functionCollapse,
+      'float-right': true,
+      'p-2': true
+    };
+    names[`badge-${color}`] = !this.state.functionCollapse;
+    return (
+      <Badge color={color} className={classnames(names)}>{text}</Badge>
+    );
   }
 
   render() {
@@ -106,27 +128,30 @@ class ContractFunction extends Component {
           })}
           onClick={() => this.toggleFunction()}>
           <CardTitle>
-            {ContractFunction.isPureCall(this.props.method) && Boolean(this.props.method.inputs.length) &&
-            <Badge color="warning" className="float-right p-2">call</Badge>
+            {ContractFunction.isPureCall(this.props.method) &&
+             this.makeBadge('success', 'call')
             }
-            {ContractFunction.isPureCall(this.props.method) && !this.props.method.inputs.length &&
-            <Button color="warning" size="sm" className="float-right" onClick={(e) => this.handleCall(e)}>call</Button>
+            {!(ContractFunction.isPureCall(this.props.method) ||
+               ContractFunction.isEvent(this.props.method)) &&
+             this.makeBadge('warning', 'send')
             }
             {ContractFunction.isEvent(this.props.method) &&
-            <Badge color="info" className="float-right p-2">event</Badge>
+             this.makeBadge('light', 'event')
             }
-            {this.props.method.name}({this.props.method.inputs.map(input => input.name).join(', ')})
+            {`${this.props.method.name}` +
+             `(${this.props.method.inputs.map(i => i.name).join(', ')})`}
           </CardTitle>
         </CardHeader>
         {!ContractFunction.isEvent(this.props.method) &&
         <Collapse isOpen={this.state.functionCollapse} className="relative">
           <CardBody>
-            <Form method="post" inline>
+            <Form inline onSubmit={(e) => this.handleSubmit(e)}>
               {this.props.method.inputs.map(input => (
                 <FormGroup key={input.name}>
                   <Label for={input.name} className="mr-2 font-weight-bold">{input.name}</Label>
                   <Input name={input.name} id={input.name} placeholder={input.type}
-                         onChange={(e) => this.handleChange(e, input.name)}/>
+                         onChange={(e) => this.handleChange(e, input.name)}
+                         onKeyPress={(e) => this.handleKeyPress(e)}/>
                 </FormGroup>
               ))}
             </Form>
@@ -140,12 +165,13 @@ class ContractFunction extends Component {
               </Row>
               <Row>
                 <Collapse isOpen={this.state.optionsCollapse} className="pl-3">
-                  <Form method="post" inline className="gas-price-form ">
+                  <Form inline className="gas-price-form" onSubmit={(e) => this.handleSubmit(e)}>
                     <FormGroup key="gasPrice">
                       <Label for="gasPrice" className="mr-2">Gas Price (in GWei)(optional)</Label>
                       <Input name="gasPrice" id="gasPrice" placeholder="uint256"
                              value={this.state.inputs.gasPrice || ''}
-                             onChange={(e) => this.handleChange(e, 'gasPrice')}/>
+                             onChange={(e) => this.handleChange(e, 'gasPrice')}
+                             onKeyPress={(e) => this.handleKeyPress(e)}/>
                       <Button onClick={(e) => this.autoSetGasPrice(e)}
                               title="Automatically set the gas price to what is currently in the estimator (default: safe low)">
                         Auto-set
@@ -165,7 +191,7 @@ class ContractFunction extends Component {
               </Row>
             </Col>
             }
-            <Button className="contract-function-button float-right" color="primary" disabled={this.callDisabled()}
+            <Button className="btn-sm contract-function-button float-right" color="primary" disabled={this.callDisabled()}
                     onClick={(e) => this.handleCall(e)}>
               {this.buttonTitle()}
             </Button>
@@ -239,4 +265,3 @@ ContractOverview.defaultProps = {
 };
 
 export default ContractOverview;
-
