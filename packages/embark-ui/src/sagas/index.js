@@ -415,7 +415,15 @@ export function *listenServices() {
   const socket = api.webSocketServices(credentials);
   const channel = yield call(createChannel, socket);
   while (true) {
-    const services = yield take(channel);
+    const { cancel, services } = yield race({
+      services: take(channel),
+      cancel: take(actions.STOP_SERVICES)
+    });
+
+    if (cancel) {
+      channel.close();
+      return;
+    }
     yield put(actions.services.success(services));
   }
 }
@@ -501,7 +509,15 @@ export function *listenContracts() {
   const socket = api.webSocketContracts(credentials);
   const channel = yield call(createChannel, socket);
   while (true) {
-    const contracts = yield take(channel);
+    const { cancel, contracts } = yield race({
+      contracts: take(channel),
+      cancel: take(actions.STOP_CONTRACTS)
+    });
+
+    if (cancel) {
+      channel.close();
+      return;
+    }
     yield put(actions.contracts.success(contracts));
   }
 }
