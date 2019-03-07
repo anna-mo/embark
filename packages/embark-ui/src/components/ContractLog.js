@@ -19,18 +19,15 @@ class ContractLog extends React.Component {
       return [];
     }
 
-    return this.props.contract.abiDefinition.filter(method => (
-      method.type === FUNCTION
-    ));
+    return this.props.contract.abiDefinition.filter(method => method.type === FUNCTION);
   }
 
   getEvents() {
     if (!this.props.contract.abiDefinition) {
       return [];
     }
-    return this.props.contract.abiDefinition.filter(method => (
-      method.type === EVENT
-    ));
+
+    return this.props.contract.abiDefinition.filter(method => method.type === EVENT);
   }
 
   updateState(key, value) {
@@ -75,7 +72,7 @@ class ContractLog extends React.Component {
               <FormGroup>
                 <Label htmlFor="functions">Functions</Label>
                 <Input type="select" name="functions" id="functions" onChange={(event) => this.updateState('method', event.target.value)} value={this.state.method}>
-                  <option value=""></option>
+                  <option value="">(all)</option>
                   {this.getMethods().map((method, index) => <option value={method.name} key={index}>{method.name}</option>)}
                   <option value="constructor">constructor</option>
                 </Input>
@@ -85,7 +82,7 @@ class ContractLog extends React.Component {
               <FormGroup>
                 <Label htmlFor="events">Events</Label>
                 <Input type="select" name="events" id="events" onChange={(event) => this.updateState('event', event.target.value)} value={this.state.event}>
-                  <option value=""/>
+                  <option value="">(all)</option>
                   {this.getEvents().map((event, index) => <option value={event.name} key={index}>{event.name}</option>)}
                 </Input>
               </FormGroup>
@@ -96,7 +93,7 @@ class ContractLog extends React.Component {
                 <Input type="select" name="status" id="status" onChange={(event) => this.updateState('status', event.target.value)} value={this.state.status}>
                   {Object.keys(TX_STATES).map((key, index) => (
                     <option value={TX_STATES[key]} key={index}>
-                      {key === 'Any' ? '' : key}
+                      {key === 'Any' ? '(any)' : key}
                     </option>
                   ))}
                 </Input>
@@ -123,7 +120,11 @@ class ContractLog extends React.Component {
                   this.dataToDisplay().map((log, index) => {
                     return (
                       <tr key={'log-' + index}>
-                        <td><DebugButton forceDebuggable transaction={{hash: log.transactionHash}}/></td>
+                        <td><DebugButton contracts={[this.props.contract]}
+                                         transaction={{...log,
+                                                       hash: log.transactionHash,
+                                                       isCall: log.kind === 'call',
+                                                       isConstructor: log.functionName === 'constructor'}}/></td>
                         <td>{`${log.name}.${log.functionName}(${log.paramString})`}</td>
                         <td>{log.events.join(', ')}</td>
                         <td>{log.gasUsed}</td>

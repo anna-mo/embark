@@ -1,9 +1,10 @@
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import {Button} from "reactstrap";
 import FontAwesome from 'react-fontawesome';
 import {withRouter} from "react-router-dom";
+
+import "./DebugButton.css";
 
 class DebugButton extends React.Component {
   onClick() {
@@ -13,12 +14,25 @@ class DebugButton extends React.Component {
 
   isDebuggable() {
     return this.props.forceDebuggable ||
-      (this.props.contracts && this.props.contracts.find(contract => contract.address === this.props.transaction.to));
+      (!this.props.transaction.isCall &&
+       !this.props.transaction.isConstructor &&
+       this.props.contracts &&
+       this.props.contracts.find(contract => {
+         const address = this.props.transaction.to || this.props.transaction.address;
+         return contract.address &&
+           address &&
+           (contract.address.toLowerCase() === address.toLowerCase());
+       }));
   }
 
   render() {
     if (!this.isDebuggable()) {
-      return <React.Fragment />
+      return (
+        <Button className="debug-button-cursor-disabled" color="primary" disabled>
+          <FontAwesome className="mr-2" name="bug"/>
+          Debug
+        </Button>
+      );
     }
     return (
       <Button color="primary" onClick={() => this.onClick()}>
