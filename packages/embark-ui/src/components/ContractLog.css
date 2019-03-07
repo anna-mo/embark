@@ -1,4 +1,4 @@
-table.contract-log td {
+table.contract-log td, table.contract-log th {
   height: 4.2em;
   vertical-align: middle !important;
 }

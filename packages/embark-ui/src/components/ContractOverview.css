@@ -1,3 +1,7 @@
+.contract-function-badge {
+  cursor: default;
+}
+
 .contract-function-badge, .contract-function-button {
   font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
 }
