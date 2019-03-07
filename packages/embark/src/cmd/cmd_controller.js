@@ -111,6 +111,8 @@ class EmbarkController {
         });
       },
       function (callback) {
+        engine.startService("embarkListener");
+        
         let pluginList = engine.plugins.listPlugins();
         if (pluginList.length > 0) {
           engine.logger.info(__("loaded plugins") + ": " + pluginList.join(", "));
@@ -118,7 +120,6 @@ class EmbarkController {
 
         engine.startService("processManager");
         engine.startService("coreProcess");
-        engine.startService("embarkListener");
         engine.startService("blockchainListener");
         engine.startService("serviceMonitor");
         engine.startService("libraryManager");
