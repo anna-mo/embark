@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
 import React from 'react';
 import {Row, Col, Table, FormGroup, Label, Input, Form} from 'reactstrap';
-
 import DebugButton from './DebugButton';
+
+import "./ContractLog.css";
 
 const TX_STATES = {Any: '', Success: '0x1', Fail: '0x0'};
 const EVENT = 'event';
@@ -103,16 +104,16 @@ class ContractLog extends React.Component {
         </Form>
         <Row>
           <Col className="overflow-auto">
-            <Table>
+            <Table className="contract-log">
               <thead>
                 <tr>
                   <th></th>
                   <th>Invocation</th>
                   <th>Events</th>
-                  <th>Gas Used</th>
-                  <th>Block number</th>
+                  <th>Gas</th>
+                  <th>Block</th>
                   <th>Status</th>
-                  <th>Transaction hash</th>
+                  <th>Transaction</th>
                 </tr>
               </thead>
               <tbody>

@@ -4,8 +4,6 @@ import {Button} from "reactstrap";
 import FontAwesome from 'react-fontawesome';
 import {withRouter} from "react-router-dom";
 
-import "./DebugButton.css";
-
 class DebugButton extends React.Component {
   onClick() {
     this.props.history.push(`/editor?debuggerTransactionHash=${this.props.transaction.hash}`);
@@ -27,12 +25,7 @@ class DebugButton extends React.Component {
 
   render() {
     if (!this.isDebuggable()) {
-      return (
-        <Button className="debug-button-cursor-disabled" color="primary" disabled>
-          <FontAwesome className="mr-2" name="bug"/>
-          Debug
-        </Button>
-      );
+      return <React.Fragment/>;
     }
     return (
       <Button color="primary" onClick={() => this.onClick()}>

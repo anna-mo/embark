@@ -98,57 +98,54 @@ class ContractFunction extends Component {
   }
 
   toggleFunction() {
-    if (!ContractFunction.isEvent(this.props.method)) {
-      this.setState({
-        functionCollapse: !this.state.functionCollapse
-      });
-    }
+    this.setState({
+      functionCollapse: !this.state.functionCollapse
+    });
   }
 
   makeBadge(color, text) {
-    const names = {
-      'badge-dark': this.state.functionCollapse,
-      'float-right': true,
-      'p-2': true
-    };
-    names[`badge-${color}`] = !this.state.functionCollapse;
     return (
-      <Badge color={color} className={classnames(names)}>{text}</Badge>
+      <Badge color={color} className={classnames({
+        'badge-dark': this.state.functionCollapse,
+        'contract-function-badge': true,
+        'float-right': true,
+        'p-2': true
+      })}>{text}</Badge>
     );
   }
 
   render() {
+    if (ContractFunction.isEvent(this.props.method)) {
+      return <React.Fragment/>;
+    }
     return (
       <Card className="contract-function-container">
         <CardHeader
           className={classnames({
-            collapsable: !ContractFunction.isEvent(this.props.method),
             'border-bottom-0': !this.state.functionCollapse,
             'rounded': !this.state.functionCollapse
           })}
           onClick={() => this.toggleFunction()}>
           <CardTitle>
-            {ContractFunction.isPureCall(this.props.method) &&
-             this.makeBadge('success', 'call')
-            }
-            {!(ContractFunction.isPureCall(this.props.method) ||
-               ContractFunction.isEvent(this.props.method)) &&
-             this.makeBadge('warning', 'send')
-            }
-            {ContractFunction.isEvent(this.props.method) &&
-             this.makeBadge('light', 'event')
-            }
-            {`${this.props.method.name}` +
-             `(${this.props.method.inputs.map(i => i.name).join(', ')})`}
+            <span>
+              {`${this.props.method.name}` +
+               `(${this.props.method.inputs.map(i => i.name).join(', ')})`}
+            </span>
+            <div>
+              {(ContractFunction.isPureCall(this.props.method) &&
+                this.makeBadge('success', 'call')) ||
+               this.makeBadge('warning', 'send')}
+            </div>
           </CardTitle>
         </CardHeader>
-        {!ContractFunction.isEvent(this.props.method) &&
         <Collapse isOpen={this.state.functionCollapse} className="relative">
           <CardBody>
             <Form inline onSubmit={(e) => this.handleSubmit(e)}>
               {this.props.method.inputs.map(input => (
                 <FormGroup key={input.name}>
-                  <Label for={input.name} className="mr-2 font-weight-bold">{input.name}</Label>
+                  <Label for={input.name} className="mr-2 font-weight-bold contract-function-input">
+                    {input.name}
+                  </Label>
                   <Input name={input.name} id={input.name} placeholder={input.type}
                          onChange={(e) => this.handleChange(e, input.name)}
                          onKeyPress={(e) => this.handleKeyPress(e)}/>
@@ -167,7 +164,7 @@ class ContractFunction extends Component {
                 <Collapse isOpen={this.state.optionsCollapse} className="pl-3">
                   <Form inline className="gas-price-form" onSubmit={(e) => this.handleSubmit(e)}>
                     <FormGroup key="gasPrice">
-                      <Label for="gasPrice" className="mr-2">Gas Price (in GWei)(optional)</Label>
+                      <Label for="gasPrice" className="mr-2">Gas Price (in GWei) (optional)</Label>
                       <Input name="gasPrice" id="gasPrice" placeholder="uint256"
                              value={this.state.inputs.gasPrice || ''}
                              onChange={(e) => this.handleChange(e, 'gasPrice')}
@@ -207,8 +204,7 @@ class ContractFunction extends Component {
               ))}
             </ListGroup>
           </CardFooter>}
-        </Collapse>}
-
+        </Collapse>
       </Card>
     );
   }
