@@ -103,14 +103,22 @@ class ContractFunction extends Component {
     });
   }
 
-  makeBadge(color, text) {
+  makeBadge(color, codeColor, text) {
+    const badgeDark = this.state.functionCollapse;
+    const _codeColor = badgeDark ? 'white' : codeColor;
     return (
       <Badge color={color} className={classnames({
-        'badge-dark': this.state.functionCollapse,
+        'badge-dark': badgeDark,
         'contract-function-badge': true,
         'float-right': true,
         'p-2': true
-      })}>{text}</Badge>
+      })}>
+        <code className={classnames({
+          [`code-${_codeColor}`]: true,
+        })}>
+          {text}
+        </code>
+      </Badge>
     );
   }
 
@@ -127,14 +135,14 @@ class ContractFunction extends Component {
           })}
           onClick={() => this.toggleFunction()}>
           <CardTitle>
-            <span>
+            <span className="contract-function-signature">
               {`${this.props.method.name}` +
                `(${this.props.method.inputs.map(i => i.name).join(', ')})`}
             </span>
             <div>
               {(ContractFunction.isPureCall(this.props.method) &&
-                this.makeBadge('success', 'call')) ||
-               this.makeBadge('warning', 'send')}
+                this.makeBadge('success', 'white', 'call')) ||
+               this.makeBadge('warning', 'black', 'send')}
             </div>
           </CardTitle>
         </CardHeader>
@@ -198,8 +206,18 @@ class ContractFunction extends Component {
             <ListGroup>
               {this.props.contractFunctions.map(contractFunction => (
                 <ListGroupItem key={contractFunction.result}>
-                  {contractFunction.inputs.length > 0 && <p>Input(s): {contractFunction.inputs.join(', ')}</p>}
-                  <strong>Result: {JSON.stringify(contractFunction.result)}</strong>
+                  {contractFunction.inputs.length > 0 &&
+                   <p>Input(s): &nbsp;
+                     <span className="contract-function-input-values">
+                       {contractFunction.inputs.join(', ')}
+                     </span>
+                   </p>}
+                  Result: &nbsp;
+                  <strong>
+                    <span className="contract-function-result">
+                      {JSON.stringify(contractFunction.result).slice(1, -1)}
+                    </span>
+                  </strong>
                 </ListGroupItem>
               ))}
             </ListGroup>

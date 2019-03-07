@@ -18,6 +18,10 @@ contract SimpleStorage {
     return storedData;
   }
 
+  function getString() public pure returns (bytes1 retVal) {
+    return "a";
+  }
+
   function set(uint x) public {
     storedData = x;
   }

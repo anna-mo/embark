@@ -2,13 +2,18 @@
   cursor: default;
 }
 
-.contract-function-badge, .contract-function-button {
+.contract-function-badge code, .contract-function-button {
   font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-}
-
-.contract-function-button {
   font-size: 13.1333px !important;
   font-weight: 700 !important;
+}
+
+.contract-function-badge code.code-black {
+  color: black !important;
+}
+
+.contract-function-badge code.code-white {
+  color: white !important;
 }
 
 .contract-function-container .card-header.closed {
@@ -41,4 +46,8 @@
 .contract-function-input {
   font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
   margin: 0 5px;
+}
+
+.contract-function-input-values, .contract-function-result, .contract-function-signature {
+  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
 }
