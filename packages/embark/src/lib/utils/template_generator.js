@@ -160,11 +160,20 @@ class TemplateGenerator {
     utils.cd(templatePath);
 
     const pkgJson = fs.readJSONSync('./package.json');
-    pkgJson.name = name;
     if (!(/demo/).test(name)) {
+      delete pkgJson.bugs;
+      pkgJson.description = '';
+      delete pkgJson.homepage;
       pkgJson.version = '0.0.1';
     }
+    if (pkgJson.devDependencies) {
+      delete pkgJson.devDependencies['embark'];
+      delete pkgJson.devDependencies['embark-reset'];
+      delete pkgJson.devDependencies['npm-run-all'];
+      delete pkgJson.devDependencies['rimraf'];
+    }
     delete pkgJson.files;
+    pkgJson.name = name;
     if (!pkgJson.scripts) pkgJson.scripts = {};
     delete pkgJson.scripts.ci;
     delete pkgJson.scripts.clean;
@@ -172,14 +181,11 @@ class TemplateGenerator {
     delete pkgJson.scripts.qa;
     delete pkgJson.scripts.reset;
     pkgJson.scripts.test = 'embark test';
-    if (pkgJson.devDependencies) {
-      delete pkgJson.devDependencies['embark'];
-      delete pkgJson.devDependencies['embark-reset'];
-      delete pkgJson.devDependencies['npm-run-all'];
-      delete pkgJson.devDependencies['rimraf'];
-    }
     fs.writeFileSync('package.json', JSON.stringify(pkgJson, null, 2));
 
+    if (!(/demo/).test(name) && fs.existsSync('README.md')) {
+      fs.removeSync('README.md');
+    }
     if (fs.existsSync('dot.gitignore')) {
       fs.moveSync('dot.gitignore', '.gitignore', {overwrite: true});
     }

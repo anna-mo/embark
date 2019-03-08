@@ -1,6 +1,6 @@
-# `embark-ui`
+# `@types/embark`
 
-> Web frontend for interactive DApp development with Embark
+> TypeScript definitions for Embark
 
 Visit [embark.status.im](https://embark.status.im/) to get started with
 [Embark](https://github.com/embark-framework/embark).

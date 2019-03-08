@@ -1,6 +1,6 @@
-# `embark-ui`
+# `embark-dapp-template-boilerplate`
 
-> Web frontend for interactive DApp development with Embark
+> Basic DApp template for Embark
 
 Visit [embark.status.im](https://embark.status.im/) to get started with
 [Embark](https://github.com/embark-framework/embark).
